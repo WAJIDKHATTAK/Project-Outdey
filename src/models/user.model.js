@@ -23,9 +23,16 @@ const userSchema = mongoose.Schema(
         }
       },
     },
+    phoneNo:{
+     type : String,
+     unique : true,
+     trim: true,
+    },
+    gender: [{
+    type: String,
+    }],
     password: {
       type: String,
-      required: true,
       trim: true,
       minlength: 8,
       validate(value) {
@@ -34,6 +41,17 @@ const userSchema = mongoose.Schema(
         }
       },
       private: true, // used by the toJSON plugin
+    },
+    googleId : {
+      type : String,
+    },
+    profilePicture : {
+     type : String,
+    },
+    profileStatus : {
+     type: String,
+     enum: ["public" , "private"],
+     default : "public"
     },
     role: {
       type: String,

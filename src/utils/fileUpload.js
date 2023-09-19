@@ -1,46 +1,34 @@
-const multer = require("multer");
-const path = require("path");
+const multer = require('multer');
+const path = require('path');
 
 // Define storage for images and documents
 const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		if (file.fieldname === "document") {
-			// Destination folder for documents
-			cb(null, "public/uploads/documents/");
-		} else {
-			// Destination folder for images
-			cb(null, "public/uploads/images/");
-		}
-	},
-	filename: (req, file, cb) => {
-		cb(
-			null,
-			file.fieldname + "-" + Date.now() + path.extname(file.originalname),
-		);
-	},
+  destination: (req, file, cb) => {
+    if (file.fieldname === 'document') {
+      // Destination folder for documents
+      cb(null, 'public/uploads/documents/');
+    } else {
+      // Destination folder for images
+      cb(null, 'public/uploads/images/');
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  },
 });
 
 // Define file filter for allowed file types
 const fileFilter = (req, file, cb) => {
-	const allowedImageMimeTypes = [
-		"image/png",
-		"image/jpg",
-		"image/jpeg",
-		"image/svg",
-		"image/svg+xml",
-	];
-	const allowedDocumentMimeTypes = ["application/pdf", "text/plain"];
+  const allowedImageMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/svg', 'image/svg+xml'];
+  const allowedDocumentMimeTypes = ['application/pdf', 'text/plain'];
 
-	if (
-		file.fieldname === "document" &&
-		allowedDocumentMimeTypes.includes(file.mimetype)
-	) {
-		cb(null, true);
-	} else if (allowedImageMimeTypes.includes(file.mimetype)) {
-		cb(null, true);
-	} else {
-		cb(new Error("File type not allowed"), false);
-	}
+  if (file.fieldname === 'document' && allowedDocumentMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else if (allowedImageMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('File type not allowed'), false);
+  }
 };
 
 // Create a multer instance with the storage and fileFilter
