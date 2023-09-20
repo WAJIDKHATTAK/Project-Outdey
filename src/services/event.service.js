@@ -9,12 +9,13 @@
 //savedEvents (event reminder)
 //queryEvents
 //eventPhotos
-//eventlOcation ? for showing with ticket in case resell
+//eventsNearMe
 //eventreminder ? friends attendingevents [give reminder for those]
 const httpStatus = require('http-status');
 const { Event } = require('../models');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
+const moment = require('moment')
 
 const pageNumber = 1; // replace with current page number
 const pageSize = 5; // number of items per page
@@ -43,13 +44,42 @@ const eventById = async (eventId) => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
-const allEvents = async () => {
+/**
+ * Query for events
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
+ * @param {number} [options.limit] - Maximum number of results per page (default = 10)
+ * @param {number} [options.page] - Current page (default = 1)
+ * @returns {Promise<QueryResult>}
+ */
+const queryEvents = async (filter, options) => {
   try {
-    const event = await Event.find({}).skip(skip).limit(pageSize).lean();
+    const newFilter = {};
+
+    // Handle eventName
+    if (filter.eventName) {
+      newFilter.eventName = filter.eventName;
+    }
+
+    // Handle eventLocation
+    if (filter.eventLocation) {
+      newFilter['eventLocation.Name'] = filter.eventLocation;
+    }
+
+    const event = await Event.paginate(newFilter,options);
     return event;
   } catch (error) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
+};
+const allEvents = async () => {
+try{
+  const event = await Event.find({}).skip(skip).limit(pageSize).lean();
+  return event;
+}catch(error){
+  throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error);
+}
 };
 const reportEvent = async (userId, eventId, body) => {
   try {
@@ -99,11 +129,12 @@ const eventStatus = async (eventId) => {
 };
 const upcomingEvents = async () => {
   try {
-    const currentDate = new Date();
+    const currentDate = moment().format('YYYY-MM-DD');
+
     const upcomingEvents = await Event.find({
-      eventEndTime: {
+      eventDate : {
         $gte: currentDate,
-      },
+      }
     })
       .skip(skip)
       .limit(pageSize)
@@ -116,9 +147,10 @@ const upcomingEvents = async () => {
 };
 const pastEvents = async () => {
   try {
-    const currentDate = new Date();
+    const currentDate = moment().format('YYYY-MM-DD');
+
     const upcomingEvents = await Event.find({
-      eventEndTime: {
+      eventDate: {
         $lt: currentDate,
       },
     })
@@ -133,9 +165,13 @@ const pastEvents = async () => {
 };
 const editEvent = async (userId, eventId, body) => {
   try {
-    const event = Event.findOne({ _id: eventId, user: userId });
+    const event = await Event.findOne({ _id: eventId});
+   const user = await Event.find({ user: userId})
     if (!event) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Event not found');
+    }
+    if (!user) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Not Authorized');
     }
     await Event.updateOne({ _id: eventId, user: userId }, { $set: body });
     const updatedEvent = await Event.findOne({ _id: eventId, user: userId });
@@ -148,6 +184,7 @@ const editEvent = async (userId, eventId, body) => {
 module.exports = {
   createEvent,
   eventById,
+  queryEvents,
   allEvents,
   reportEvent,
   eventStatus,
