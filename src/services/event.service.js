@@ -67,6 +67,21 @@ const queryEvents = async (filter, options) => {
       newFilter['eventLocation.Name'] = filter.eventLocation;
     }
 
+    if (filter.latitude && filter.longitude) {
+      const radiusInKm = 50;
+      const earthRadiusInKm = 6371;
+      const radiusInRadians = radiusInKm / earthRadiusInKm;
+
+      newFilter['eventLocation.coordinates'] = {
+        $geoWithin: {
+          $centerSphere: [
+            [parseFloat(filter.longitude), parseFloat(filter.latitude)],
+            radiusInRadians
+          ],
+        },
+      };
+    }
+
     const event = await Event.paginate(newFilter,options);
     return event;
   } catch (error) {
@@ -180,7 +195,6 @@ const editEvent = async (userId, eventId, body) => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
-
 module.exports = {
   createEvent,
   eventById,
