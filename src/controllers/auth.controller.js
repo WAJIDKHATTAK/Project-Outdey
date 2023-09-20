@@ -19,11 +19,11 @@ const login = catchAsync(async (req, res) => {
 const logout = catchAsync(async (req, res) => {
   // console.log(req.body.refreshToken)
   req.session.destroy((err) => {
-    if(err){
-     throw new ApiError(httpStatus.NO_CONTENT, err);
+    if (err) {
+      throw new ApiError(httpStatus.NO_CONTENT, err);
     }
-    res.redirect('/')
-  })
+    res.redirect('/');
+  });
   await authService.logout(req.body.refreshToken);
   res.status(httpStatus.NO_CONTENT).send();
 });

@@ -54,9 +54,9 @@ module.exports = {
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
   },
   google: {
-    clientId : envVars.GOOGLE_CLIENT_ID,
-    secret : envVars.GOOGLE_CLIENT_SECRET,
-    sessionSecret : envVars.SESSION_SECRET,
+    clientId: envVars.GOOGLE_CLIENT_ID,
+    secret: envVars.GOOGLE_CLIENT_SECRET,
+    sessionSecret: envVars.SESSION_SECRET,
   },
   email: {
     smtp: {

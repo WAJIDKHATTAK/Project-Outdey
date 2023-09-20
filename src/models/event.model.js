@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-
-const EventSchema = new mongoose.Schema(
+const { toJSON, paginate } = require('./plugins');
+const mongoDuplicateKeyError = require('../utils/mongoDuplicateKeyError');
+const eventSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -69,7 +70,7 @@ const EventSchema = new mongoose.Schema(
       type: String,
       enum: ['upcoming', 'ongoing', 'finished'],
       default: 'upcoming', // optional, if you want a default value
-      required: true
+      required: true,
     },
   },
   {
@@ -77,6 +78,10 @@ const EventSchema = new mongoose.Schema(
   }
 );
 
-const Event = mongoose.model('Event', EventSchema);
+eventSchema.plugin(toJSON);
+eventSchema.plugin(paginate);
+
+mongoDuplicateKeyError(eventSchema);
+const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;

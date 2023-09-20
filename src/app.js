@@ -7,7 +7,7 @@ const compression = require('compression');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const path = require("path");
+const path = require('path');
 const httpStatus = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
@@ -16,7 +16,7 @@ const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
-require("./config/googleStrategy")
+require('./config/googleStrategy');
 const app = express();
 
 if (config.env !== 'test') {
@@ -47,20 +47,22 @@ app.use(cors());
 app.options('*', cors());
 const indexPath = path.join(__dirname, 'views', 'index.html');
 
-function isLoggedIn (req, res, next) {
-  req.user ? next () : res.sendStatus (401);
+function isLoggedIn(req, res, next) {
+  req.user ? next() : res.sendStatus(401);
 }
 
-app.get ('/', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(indexPath);
 });
 
-app.use(session({
-  secret: config.google.sessionSecret,
-  resave : false ,
-  saveUninitialized: true,
-  cookie : {secure: false , maxAge: 1000 * 60 * 60}
-}))
+app.use(
+  session({
+    secret: config.google.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, maxAge: 1000 * 60 * 60 },
+  })
+);
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -69,33 +71,33 @@ passport.use('jwt', jwtStrategy);
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 
-app.get (
+app.get(
   '/auth/google',
-  passport.authenticate ('google', {
+  passport.authenticate('google', {
     scope: ['email', 'profile'],
   })
 );
 
-app.get (
+app.get(
   '/auth/google/callback',
-  passport.authenticate ('google', {
+  passport.authenticate('google', {
     successRedirect: '/auth/protected',
     failureRedirect: '/auth/google/failure',
   })
 );
 
-app.get ('/auth/google/failure', (req, res) => {
-  res.send ('Something went wrong!');
+app.get('/auth/google/failure', (req, res) => {
+  res.send('Something went wrong!');
 });
 
-app.get ('/auth/protected', isLoggedIn, (req, res) => {
+app.get('/auth/protected', isLoggedIn, (req, res) => {
   let name = req.user.displayName;
-  res.send (`Hello ${name}`);
+  res.send(`Hello ${name}`);
 });
 
-app.use ('/auth/logout', (req, res) => {
-  req.session.destroy ();
-  res.send ('See you again!');
+app.use('/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.send('See you again!');
 });
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
