@@ -68,7 +68,7 @@ const queryEvents = async (filter, options) => {
     }
 
     if (filter.latitude && filter.longitude) {
-      const radiusInKm = 50;
+      const radiusInKm = 100;
       const earthRadiusInKm = 6371;
       const radiusInRadians = radiusInKm / earthRadiusInKm;
 
