@@ -9,7 +9,43 @@ const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
 const mongoDuplicateKeyError = require('../utils/mongoDuplicateKeyError');
 
-const ticketSchema = new mongoose.Schema({});
+const ticketSchema = new mongoose.Schema({
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    required: true,
+  },
+  currentOwner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  uid: {
+    type: String,
+    required: true,
+  },
+  ticketTypes: [
+    {
+      ticketTitle: {
+        type: String,
+        required: true,
+      },
+      ticketPrice: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  isResell: {
+    type: Boolean,
+    default: false,
+  },
+  status: {
+    type: String,
+    enum: ['new', 'resell'],
+    default: 'new',
+  },
+});
 ticketSchema.plugin(toJSON);
 ticketSchema.plugin(paginate);
 

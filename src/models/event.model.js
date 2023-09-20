@@ -26,14 +26,11 @@ const eventSchema = new mongoose.Schema(
     },
     TicketType: [
       {
-        ticketTitle: {
-          type: String,
-        },
-        ticketPrice: {
-          type: Number,
-        },
-      },
-    ],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Ticket',
+      required: true,
+    }
+   ],
     description: {
       type: String,
       required: true,
